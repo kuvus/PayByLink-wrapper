@@ -3,7 +3,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PayByLink = void 0;
 const node_fetch_1 = __importDefault(require("node-fetch"));
 const js_sha256_1 = require("js-sha256");
 class PayByLink {
@@ -80,5 +79,5 @@ class PayByLink {
         return response.signature === localSignature;
     }
 }
-exports.PayByLink = PayByLink;
+exports.default = PayByLink;
 //# sourceMappingURL=index.js.map

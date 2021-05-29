@@ -1,6 +1,6 @@
-export declare class PayByLink {
-    secret: string;
-    shopId: number;
+export default class PayByLink {
+    private readonly secret;
+    private readonly shopId;
     constructor(secret: string, shopId: number);
     generateTransaction(price: number, control?: string, description?: string, email?: string, notifyURL?: string, returnUrlSuccess?: string, returnUrlSuccessTidPass?: boolean, hideReceiver?: boolean, customFinishNote?: string): Promise<any>;
     cancelTransaction(transactionId: number, customReason: string): Promise<any>;
