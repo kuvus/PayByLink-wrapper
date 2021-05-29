@@ -1,4 +1,4 @@
-export default class PayByLink {
+export declare class Client {
     private readonly secret;
     private readonly shopId;
     constructor(secret: string, shopId: number);

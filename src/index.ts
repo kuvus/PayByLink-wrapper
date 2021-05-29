@@ -1,7 +1,7 @@
 import fetch from 'node-fetch'
 import { sha256 } from 'js-sha256'
 
-export default class PayByLink {
+export class Client {
     private readonly secret!: string
     private readonly shopId!: number
 
@@ -26,15 +26,18 @@ export default class PayByLink {
     ) {
         const formattedPrice: string = price.toFixed(2)
 
-        const signature: string = sha256(
-            `${this.secret}|${this.shopId}|${formattedPrice}|${control && `|${control}`}|${
-                description && `|${description}`
-            }|${email && `|${email}`}|${notifyURL && `|${notifyURL}`}|${
-                returnUrlSuccess && `|${returnUrlSuccess}`
-            }${returnUrlSuccessTidPass && `|${returnUrlSuccessTidPass}`}${
-                hideReceiver && `|${hideReceiver}`
-            }${customFinishNote && `|${customFinishNote}`}`
-        )
+        const transactionText = `${this.secret}|${this.shopId}|${formattedPrice}
+        ${control ? `|${control}` : ''}
+        ${description ? `|${description}` : ''}
+        ${email ? `|${email}` : ''}
+        ${notifyURL ? `|${notifyURL}` : ''}
+        ${returnUrlSuccess ? `|${returnUrlSuccess}` : ''}
+        ${returnUrlSuccessTidPass ? `|${returnUrlSuccessTidPass}` : ''}
+        ${hideReceiver ? `|${hideReceiver}` : ''}
+        ${customFinishNote ? `|${customFinishNote}` : ''}`
+
+        const signature: string = sha256(transactionText.trim())
+
         const requestBody: object = {
             shopId: this.shopId,
             price,
@@ -55,7 +58,6 @@ export default class PayByLink {
             headers: { 'Content-Type': 'application/json' },
         })
             .then(res => {
-                if (!res.ok) throw new Error(`An error occurred while calling the API`)
                 return res.json()
             })
             .catch(e => {

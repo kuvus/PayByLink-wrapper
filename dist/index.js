@@ -3,9 +3,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.Client = void 0;
 const node_fetch_1 = __importDefault(require("node-fetch"));
 const js_sha256_1 = require("js-sha256");
-class PayByLink {
+class Client {
     constructor(secret, shopId) {
         if (secret)
             this.secret = secret;
@@ -18,7 +19,16 @@ class PayByLink {
     }
     async generateTransaction(price, control, description, email, notifyURL, returnUrlSuccess, returnUrlSuccessTidPass, hideReceiver, customFinishNote) {
         const formattedPrice = price.toFixed(2);
-        const signature = js_sha256_1.sha256(`${this.secret}|${this.shopId}|${formattedPrice}|${control && `|${control}`}|${description && `|${description}`}|${email && `|${email}`}|${notifyURL && `|${notifyURL}`}|${returnUrlSuccess && `|${returnUrlSuccess}`}${returnUrlSuccessTidPass && `|${returnUrlSuccessTidPass}`}${hideReceiver && `|${hideReceiver}`}${customFinishNote && `|${customFinishNote}`}`);
+        const transactionText = `${this.secret}|${this.shopId}|${formattedPrice}
+        ${control ? `|${control}` : ''}
+        ${description ? `|${description}` : ''}
+        ${email ? `|${email}` : ''}
+        ${notifyURL ? `|${notifyURL}` : ''}
+        ${returnUrlSuccess ? `|${returnUrlSuccess}` : ''}
+        ${returnUrlSuccessTidPass ? `|${returnUrlSuccessTidPass}` : ''}
+        ${hideReceiver ? `|${hideReceiver}` : ''}
+        ${customFinishNote ? `|${customFinishNote}` : ''}`;
+        const signature = js_sha256_1.sha256(transactionText.trim());
         const requestBody = {
             shopId: this.shopId,
             price,
@@ -38,8 +48,6 @@ class PayByLink {
             headers: { 'Content-Type': 'application/json' },
         })
             .then(res => {
-            if (!res.ok)
-                throw new Error(`An error occurred while calling the API`);
             return res.json();
         })
             .catch(e => {
@@ -79,5 +87,5 @@ class PayByLink {
         return response.signature === localSignature;
     }
 }
-exports.default = PayByLink;
+exports.Client = Client;
 //# sourceMappingURL=index.js.map
