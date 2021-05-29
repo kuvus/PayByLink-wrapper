@@ -19,15 +19,7 @@ class Client {
     }
     async generateTransaction(price, control, description, email, notifyURL, returnUrlSuccess, returnUrlSuccessTidPass, hideReceiver, customFinishNote) {
         const formattedPrice = price.toFixed(2);
-        const transactionText = `${this.secret}|${this.shopId}|${formattedPrice}
-        ${control ? `|${control}` : ''}
-        ${description ? `|${description}` : ''}
-        ${email ? `|${email}` : ''}
-        ${notifyURL ? `|${notifyURL}` : ''}
-        ${returnUrlSuccess ? `|${returnUrlSuccess}` : ''}
-        ${returnUrlSuccessTidPass ? `|${returnUrlSuccessTidPass}` : ''}
-        ${hideReceiver ? `|${hideReceiver}` : ''}
-        ${customFinishNote ? `|${customFinishNote}` : ''}`;
+        const transactionText = `${this.secret}|${this.shopId}|${formattedPrice}${control ? `|${control}` : ''}${description ? `|${description}` : ''}${email ? `|${email}` : ''}${notifyURL ? `|${notifyURL}` : ''}${returnUrlSuccess ? `|${returnUrlSuccess}` : ''}${returnUrlSuccessTidPass ? `|${returnUrlSuccessTidPass}` : ''}${hideReceiver ? `|${hideReceiver}` : ''}${customFinishNote ? `|${customFinishNote}` : ''}`;
         const signature = js_sha256_1.sha256(transactionText.trim());
         const requestBody = {
             shopId: this.shopId,

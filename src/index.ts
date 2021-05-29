@@ -26,15 +26,13 @@ export class Client {
     ) {
         const formattedPrice: string = price.toFixed(2)
 
-        const transactionText = `${this.secret}|${this.shopId}|${formattedPrice}
-        ${control ? `|${control}` : ''}
-        ${description ? `|${description}` : ''}
-        ${email ? `|${email}` : ''}
-        ${notifyURL ? `|${notifyURL}` : ''}
-        ${returnUrlSuccess ? `|${returnUrlSuccess}` : ''}
-        ${returnUrlSuccessTidPass ? `|${returnUrlSuccessTidPass}` : ''}
-        ${hideReceiver ? `|${hideReceiver}` : ''}
-        ${customFinishNote ? `|${customFinishNote}` : ''}`
+        const transactionText = `${this.secret}|${this.shopId}|${formattedPrice}${
+            control ? `|${control}` : ''
+        }${description ? `|${description}` : ''}${email ? `|${email}` : ''}${
+            notifyURL ? `|${notifyURL}` : ''
+        }${returnUrlSuccess ? `|${returnUrlSuccess}` : ''}${
+            returnUrlSuccessTidPass ? `|${returnUrlSuccessTidPass}` : ''
+        }${hideReceiver ? `|${hideReceiver}` : ''}${customFinishNote ? `|${customFinishNote}` : ''}`
 
         const signature: string = sha256(transactionText.trim())
 
