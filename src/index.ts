@@ -101,6 +101,7 @@ export class PayByLink {
         apiVersion: number
         signature: string
     }) {
+        if (!response) throw new Error(`You didn't provide API response.`)
         const localSignature: string = sha256(
             `${this.secret}|${response.transactionId}|${response.control}|${response.email}|${response.amountPaid}|${response.notificationAttempt}|${response.paymentType}|${response.apiVersion}`
         )
