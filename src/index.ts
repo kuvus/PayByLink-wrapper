@@ -1,11 +1,11 @@
 import fetch from 'node-fetch'
 import { sha256 } from 'js-sha256'
 
-export class PayByLink {
-    secret!: string
-    shopId!: number
+export default class PayByLink {
+    private readonly secret!: string
+    private readonly shopId!: number
 
-    constructor(secret: string, shopId: number) {
+    public constructor(secret: string, shopId: number) {
         if (secret) this.secret = secret
         else throw new Error(`You didn't provide PBL secret.`)
 
@@ -13,7 +13,7 @@ export class PayByLink {
         else throw new Error(`You didn't provide PBL shopId.`)
     }
 
-    async generateTransaction(
+    public async generateTransaction(
         price: number,
         control?: string,
         description?: string,
@@ -63,7 +63,7 @@ export class PayByLink {
             })
     }
 
-    async cancelTransaction(transactionId: number, customReason: string) {
+    public async cancelTransaction(transactionId: number, customReason: string) {
         if (!transactionId) throw new Error(`You didn't provide transaction ID.`)
         if (!customReason) throw new Error(`You didn't provide cancel reason.`)
 
@@ -91,7 +91,7 @@ export class PayByLink {
             })
     }
 
-    validateTransaction(response: {
+    public validateTransaction(response: {
         transactionId: string
         control: string
         email: string
