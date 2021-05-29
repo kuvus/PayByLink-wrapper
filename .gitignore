@@ -5,7 +5,6 @@
 .yarn/install-state.gz
 .pnp.*
 
-# Typescript build dir
-/dist
+.idea
 
 /test 
