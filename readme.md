@@ -16,7 +16,17 @@ yarn add paybylink-wrapper
 const PayByLink = require('paybylink-wrapper').Client
 const pbl = new PayByLink(secret, shopId)
 
-pbl.generateTransaction(price, control, description, email, notifyURL, returnUrlSuccess, returnUrlSuccessTidPass, hideReceiver, customFinishNote)
+pbl.generateTransaction({
+    price,
+    control,
+    description,
+    email,
+    notifyURL,
+    returnUrlSuccess,
+    returnUrlSuccessTidPass,
+    hideReceiver,
+    customFinishNote,
+})
     .then(transaction => console.log(transaction))
 ```
 
@@ -25,7 +35,9 @@ pbl.generateTransaction(price, control, description, email, notifyURL, returnUrl
 #### Asynchronous
 #### Parameters:
 
-| Parameter               | Type    | Required |  
+options (Object):
+
+| Key                     | Type    | Required |  
 | :---------------------: |:------: | :------: |
 | price                   | Number  | True     |
 | control                 | String  | False    |

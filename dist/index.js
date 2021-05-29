@@ -17,21 +17,23 @@ class Client {
         else
             throw new Error(`You didn't provide PBL shopId.`);
     }
-    async generateTransaction(price, control, description, email, notifyURL, returnUrlSuccess, returnUrlSuccessTidPass, hideReceiver, customFinishNote) {
-        const formattedPrice = price.toFixed(2);
-        const transactionText = `${this.secret}|${this.shopId}|${formattedPrice}${control ? `|${control}` : ''}${description ? `|${description}` : ''}${email ? `|${email}` : ''}${notifyURL ? `|${notifyURL}` : ''}${returnUrlSuccess ? `|${returnUrlSuccess}` : ''}${returnUrlSuccessTidPass ? `|${returnUrlSuccessTidPass}` : ''}${hideReceiver ? `|${hideReceiver}` : ''}${customFinishNote ? `|${customFinishNote}` : ''}`;
+    async generateTransaction(options) {
+        const formattedPrice = options.price.toFixed(2);
+        const transactionText = `${this.secret}|${this.shopId}|${formattedPrice}${options.control ? `|${options.control}` : ''}${options.description ? `|${options.description}` : ''}${options.email ? `|${options.email}` : ''}${options.notifyURL ? `|${options.notifyURL}` : ''}${options.returnUrlSuccess ? `|${options.returnUrlSuccess}` : ''}${options.returnUrlSuccessTidPass ? `|${options.returnUrlSuccessTidPass}` : ''}${options.hideReceiver ? `|${options.hideReceiver}` : ''}${options.customFinishNote ? `|${options.customFinishNote}` : ''}`;
         const signature = js_sha256_1.sha256(transactionText.trim());
         const requestBody = {
             shopId: this.shopId,
-            price,
-            ...(control && { control }),
-            ...(description && { description }),
-            ...(email && { email }),
-            ...(notifyURL && { notifyURL }),
-            ...(returnUrlSuccess && { returnUrlSuccess }),
-            ...(returnUrlSuccessTidPass && { returnUrlSuccessTidPass }),
-            ...(hideReceiver && { hideReceiver }),
-            ...(customFinishNote && { customFinishNote }),
+            price: options.price,
+            ...(options.control && { control: options.control }),
+            ...(options.description && { description: options.description }),
+            ...(options.email && { email: options.email }),
+            ...(options.notifyURL && { notifyURL: options.notifyURL }),
+            ...(options.returnUrlSuccess && { returnUrlSuccess: options.returnUrlSuccess }),
+            ...(options.returnUrlSuccessTidPass && {
+                returnUrlSuccessTidPass: options.returnUrlSuccessTidPass,
+            }),
+            ...(options.hideReceiver && { hideReceiver: options.hideReceiver }),
+            ...(options.customFinishNote && { customFinishNote: options.customFinishNote }),
             signature,
         };
         return await node_fetch_1.default('https://secure.paybylink.pl/api/v1/transfer/generate', {
