@@ -1,9 +1,9 @@
 export class TransactionResponse {
-    url: string
     transactionId: number
+    url?: string
 
-    constructor(url: string, transactionId: number) {
-        this.url = url
+    constructor(transactionId: number, url?: string) {
         this.transactionId = transactionId
+        this.url = url
     }
 }

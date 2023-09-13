@@ -46,16 +46,51 @@ class PblClient {
             ]
                 .filter(val => val)
                 .join('|');
-            const signature = (0, js_sha256_1.sha256)(transactionParams);
+            const signature = js_sha256_1.sha256(transactionParams);
             const requestBody = Object.assign(Object.assign({ shopId: this.shopId }, options), { signature });
             const response = yield axios_1.default
                 .post('https://secure.paybylink.pl/api/v1/transfer/generate', requestBody)
-                .catch(e => {
-                throw new transaction_error_1.PayByLinkError(e);
+                .catch((e) => {
+                if (axios_1.default.isAxiosError(e) && e.response) {
+                    const response = e.response.data;
+                    throw new transaction_error_1.PayByLinkError(response.error || e.message);
+                }
+                throw new transaction_error_1.PayByLinkError(e.message);
             });
             if (response.status !== 200)
                 throw new transaction_error_1.PayByLinkError(response.data.error);
-            return new transaction_response_1.TransactionResponse(response.data.url, response.data.transactionId);
+            return new transaction_response_1.TransactionResponse(response.data.transactionId, response.data.url);
+        });
+    }
+    generateBlikWhiteLabelTransaction(options) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const formattedPrice = options.price.toFixed(2);
+            const transactionParams = [
+                this.secret,
+                this.shopId,
+                formattedPrice,
+                options.code,
+                options.customerIP,
+                options.control,
+                options.notifyPaymentURL,
+                options.notifyStatusURL,
+            ]
+                .filter(val => val)
+                .join('|');
+            const signature = js_sha256_1.sha256(transactionParams);
+            const requestBody = Object.assign(Object.assign({ shopId: this.shopId }, options), { signature });
+            const response = yield axios_1.default
+                .post('https://secure.paybylink.pl/api/v1/transfer/blikauth', requestBody)
+                .catch((e) => {
+                if (axios_1.default.isAxiosError(e) && e.response) {
+                    const response = e.response.data;
+                    throw new transaction_error_1.PayByLinkError(response.error || e.message);
+                }
+                throw new transaction_error_1.PayByLinkError(e.message);
+            });
+            if (response.status !== 200)
+                throw new transaction_error_1.PayByLinkError(response.data.error);
+            return new transaction_response_1.TransactionResponse(response.data.transactionId);
         });
     }
     cancelTransaction(transactionId, customReason) {
@@ -64,7 +99,7 @@ class PblClient {
                 throw new Error(`No transaction ID provided.`);
             if (!customReason)
                 throw new Error(`No cancellation reason provided.`);
-            const signature = (0, js_sha256_1.sha256)([this.secret, this.shopId, transactionId, customReason].filter(val => val).join('|'));
+            const signature = js_sha256_1.sha256([this.secret, this.shopId, transactionId, customReason].filter(val => val).join('|'));
             const requestBody = {
                 shopId: this.shopId,
                 transactionId,
@@ -86,10 +121,10 @@ class PblClient {
             return true;
         });
     }
-    validateTransaction(notification) {
+    validateTransactionNotification(notification) {
         if (!notification)
             throw new Error(`No notification body provided.`);
-        const localSignature = (0, js_sha256_1.sha256)([
+        const localSignature = js_sha256_1.sha256([
             this.secret,
             notification.transactionId,
             notification.control,
@@ -98,6 +133,20 @@ class PblClient {
             notification.notificationAttempt,
             notification.paymentType,
             notification.apiVersion,
+        ]
+            .filter(val => val)
+            .join('|'));
+        return notification.signature === localSignature;
+    }
+    validateBlikNotification(notification) {
+        if (!notification)
+            throw new Error(`No notification body provided.`);
+        const localSignature = js_sha256_1.sha256([
+            this.secret,
+            notification.transactionId,
+            notification.control,
+            notification.price.toFixed(2),
+            notification.status,
         ]
             .filter(val => val)
             .join('|'));

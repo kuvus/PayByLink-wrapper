@@ -1,5 +1,5 @@
 import { TransactionResponse } from './transaction.response';
-type TransactionOptions = {
+declare type TransactionOptions = {
     price: number;
     control?: string;
     description?: string;
@@ -10,13 +10,22 @@ type TransactionOptions = {
     hideReceiver?: boolean;
     customFinishNote?: string;
 };
+declare type BlikWhiteLabelTransactionOptions = {
+    price: number;
+    code: string;
+    customerIP: string;
+    control?: string;
+    notifyPaymentURL?: string;
+    notifyStatusURL?: string;
+};
 export declare class PblClient {
     private readonly secret;
     private readonly shopId;
     constructor(secret: string, shopId: number);
     generateTransaction(options: TransactionOptions): Promise<TransactionResponse>;
+    generateBlikWhiteLabelTransaction(options: BlikWhiteLabelTransactionOptions): Promise<TransactionResponse>;
     cancelTransaction(transactionId: number, customReason: string): Promise<boolean>;
-    validateTransaction(notification: {
+    validateTransactionNotification(notification: {
         transactionId: string;
         control: string;
         email: string;
@@ -24,6 +33,13 @@ export declare class PblClient {
         notificationAttempt: number;
         paymentType: string;
         apiVersion: number;
+        signature: string;
+    }): boolean;
+    validateBlikNotification(notification: {
+        transactionId: string;
+        control: string;
+        price: number;
+        status: string;
         signature: string;
     }): boolean;
 }

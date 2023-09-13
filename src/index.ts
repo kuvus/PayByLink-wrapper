@@ -15,6 +15,15 @@ type TransactionOptions = {
     customFinishNote?: string
 }
 
+type BlikWhiteLabelTransactionOptions = {
+    price: number
+    code: string
+    customerIP: string
+    control?: string
+    notifyPaymentURL?: string
+    notifyStatusURL?: string
+}
+
 type SuccessResponse = {
     url: string
     transactionId: string
@@ -76,7 +85,48 @@ export class PblClient {
 
         if (response.status !== 200) throw new PayByLinkError(response.data.error)
 
-        return new TransactionResponse(response.data.url, response.data.transactionId)
+        return new TransactionResponse(response.data.transactionId, response.data.url)
+    }
+
+    public async generateBlikWhiteLabelTransaction(
+        options: BlikWhiteLabelTransactionOptions
+    ): Promise<TransactionResponse> {
+        const formattedPrice: string = options.price.toFixed(2)
+
+        const transactionParams = [
+            this.secret,
+            this.shopId,
+            formattedPrice,
+            options.code,
+            options.customerIP,
+            options.control,
+            options.notifyPaymentURL,
+            options.notifyStatusURL,
+        ]
+            .filter(val => val)
+            .join('|')
+
+        const signature: string = sha256(transactionParams)
+
+        const requestBody: object = {
+            shopId: this.shopId,
+            ...options,
+            signature,
+        }
+
+        const response = await axios
+            .post('https://secure.paybylink.pl/api/v1/transfer/blikauth', requestBody)
+            .catch((e: Error | AxiosError) => {
+                if (axios.isAxiosError(e) && e.response) {
+                    const response = e.response.data as ErrorResponse
+                    throw new PayByLinkError(response.error || e.message)
+                }
+                throw new PayByLinkError(e.message)
+            })
+
+        if (response.status !== 200) throw new PayByLinkError(response.data.error)
+
+        return new TransactionResponse(response.data.transactionId)
     }
 
     public async cancelTransaction(transactionId: number, customReason: string) {
@@ -112,7 +162,7 @@ export class PblClient {
         return true
     }
 
-    public validateTransaction(notification: {
+    public validateTransactionNotification(notification: {
         transactionId: string
         control: string
         email: string
@@ -134,6 +184,30 @@ export class PblClient {
                 notification.notificationAttempt,
                 notification.paymentType,
                 notification.apiVersion,
+            ]
+                .filter(val => val)
+                .join('|')
+        )
+
+        return notification.signature === localSignature
+    }
+
+    public validateBlikNotification(notification: {
+        transactionId: string
+        control: string
+        price: number
+        status: string
+        signature: string
+    }) {
+        if (!notification) throw new Error(`No notification body provided.`)
+
+        const localSignature = sha256(
+            [
+                this.secret,
+                notification.transactionId,
+                notification.control,
+                notification.price.toFixed(2),
+                notification.status,
             ]
                 .filter(val => val)
                 .join('|')
