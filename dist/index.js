@@ -13,9 +13,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Client = void 0;
-// import fetch from 'node-fetch'
 const js_sha256_1 = require("js-sha256");
 const axios_1 = __importDefault(require("axios"));
+const transaction_error_1 = require("./transaction.error");
+const transaction_response_1 = require("./transaction.response");
 class Client {
     constructor(secret, shopId) {
         if (secret)
@@ -47,24 +48,56 @@ class Client {
                 .join('|');
             const signature = js_sha256_1.sha256(transactionParams);
             const requestBody = Object.assign(Object.assign({ shopId: this.shopId }, options), { signature });
-            console.log(requestBody, transactionParams, signature, 'aads');
-            const response = yield axios_1.default.post('https://secure.paybylink.pl/api/v1/transfer/generate', requestBody);
-            console.log(response.data);
-            // return await fetch('https://secure.paybylink.pl/api/v1/transfer/generate', {
-            //     method: 'POST',
-            //     body: JSON.stringify(requestBody),
-            //     headers: { 'Content-Type': 'application/json' },
-            // })
-            //     .then(res => {
-            //         if (!res.ok) {
-            //             console.log(res)
-            //         }
-            //         return res.json()
-            //     })
-            //     .catch(e => {
-            //         throw new Error(e)
-            //     })
+            const response = yield axios_1.default
+                .post('https://secure.paybylink.pl/api/v1/transfer/generate', requestBody)
+                .catch(e => {
+                throw new transaction_error_1.PayByLinkError(e);
+            });
+            if (response.status !== 200)
+                throw new transaction_error_1.PayByLinkError(response.data.error);
+            return new transaction_response_1.TransactionResponse(response.data.url, response.data.transactionId);
         });
+    }
+    cancelTransaction(transactionId, customReason) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!transactionId)
+                throw new Error(`No transaction ID provided.`);
+            if (!customReason)
+                throw new Error(`No cancellation reason provided.`);
+            const signature = js_sha256_1.sha256([this.secret, this.shopId, transactionId, customReason].filter(val => val).join('|'));
+            const requestBody = {
+                shopId: this.shopId,
+                transactionId,
+                customReason,
+                signature,
+            };
+            const response = yield axios_1.default
+                .post('https://secure.paybylink.pl/api/v1/transfer/cancel', requestBody)
+                .catch(e => {
+                throw new transaction_error_1.PayByLinkError(e);
+            });
+            if (!response.data.cancelled) {
+                throw new transaction_error_1.PayByLinkError(`Transaction with ID ${transactionId} could not be cancelled. ${response.data.cancleerror}`);
+            }
+            return true;
+        });
+    }
+    validateTransaction(notification) {
+        if (!notification)
+            throw new Error(`No notification body provided.`);
+        const localSignature = js_sha256_1.sha256([
+            this.secret,
+            notification.transactionId,
+            notification.control,
+            notification.email,
+            notification.amountPaid.toFixed(2),
+            notification.notificationAttempt,
+            notification.paymentType,
+            notification.apiVersion,
+        ]
+            .filter(val => val)
+            .join('|'));
+        return notification.signature === localSignature;
     }
 }
 exports.Client = Client;
