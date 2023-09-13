@@ -1,5 +1,5 @@
 import { sha256 } from 'js-sha256'
-import axios from 'axios'
+import axios, { AxiosError } from 'axios'
 import { PayByLinkError } from './transaction.error'
 import { TransactionResponse } from './transaction.response'
 
@@ -13,6 +13,16 @@ type TransactionOptions = {
     returnUrlSuccessTidPass?: boolean
     hideReceiver?: boolean
     customFinishNote?: string
+}
+
+type SuccessResponse = {
+    url: string
+    transactionId: string
+}
+
+type ErrorResponse = {
+    errorCode: number
+    error: string
 }
 
 export class PblClient {
@@ -56,8 +66,12 @@ export class PblClient {
 
         const response = await axios
             .post('https://secure.paybylink.pl/api/v1/transfer/generate', requestBody)
-            .catch(e => {
-                throw new PayByLinkError(e)
+            .catch((e: Error | AxiosError) => {
+                if (axios.isAxiosError(e) && e.response) {
+                    const response = e.response.data as ErrorResponse
+                    throw new PayByLinkError(response.error || e.message)
+                }
+                throw new PayByLinkError(e.message)
             })
 
         if (response.status !== 200) throw new PayByLinkError(response.data.error)
@@ -81,8 +95,12 @@ export class PblClient {
 
         const response = await axios
             .post('https://secure.paybylink.pl/api/v1/transfer/cancel', requestBody)
-            .catch(e => {
-                throw new PayByLinkError(e)
+            .catch((e: Error | AxiosError) => {
+                if (axios.isAxiosError(e) && e.response) {
+                    const response = e.response.data as ErrorResponse
+                    throw new PayByLinkError(response.error || e.message)
+                }
+                throw new PayByLinkError(e.message)
             })
 
         if (!response.data.cancelled) {

@@ -1,5 +1,5 @@
 import { TransactionResponse } from './transaction.response';
-declare type TransactionOptions = {
+type TransactionOptions = {
     price: number;
     control?: string;
     description?: string;

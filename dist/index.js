@@ -46,7 +46,7 @@ class PblClient {
             ]
                 .filter(val => val)
                 .join('|');
-            const signature = js_sha256_1.sha256(transactionParams);
+            const signature = (0, js_sha256_1.sha256)(transactionParams);
             const requestBody = Object.assign(Object.assign({ shopId: this.shopId }, options), { signature });
             const response = yield axios_1.default
                 .post('https://secure.paybylink.pl/api/v1/transfer/generate', requestBody)
@@ -64,7 +64,7 @@ class PblClient {
                 throw new Error(`No transaction ID provided.`);
             if (!customReason)
                 throw new Error(`No cancellation reason provided.`);
-            const signature = js_sha256_1.sha256([this.secret, this.shopId, transactionId, customReason].filter(val => val).join('|'));
+            const signature = (0, js_sha256_1.sha256)([this.secret, this.shopId, transactionId, customReason].filter(val => val).join('|'));
             const requestBody = {
                 shopId: this.shopId,
                 transactionId,
@@ -73,8 +73,12 @@ class PblClient {
             };
             const response = yield axios_1.default
                 .post('https://secure.paybylink.pl/api/v1/transfer/cancel', requestBody)
-                .catch(e => {
-                throw new transaction_error_1.PayByLinkError(e);
+                .catch((e) => {
+                if (axios_1.default.isAxiosError(e) && e.response) {
+                    const response = e.response.data;
+                    throw new transaction_error_1.PayByLinkError(response.error || e.message);
+                }
+                throw new transaction_error_1.PayByLinkError(e.message);
             });
             if (!response.data.cancelled) {
                 throw new transaction_error_1.PayByLinkError(`Transaction with ID ${transactionId} could not be cancelled. ${response.data.cancleerror}`);
@@ -85,7 +89,7 @@ class PblClient {
     validateTransaction(notification) {
         if (!notification)
             throw new Error(`No notification body provided.`);
-        const localSignature = js_sha256_1.sha256([
+        const localSignature = (0, js_sha256_1.sha256)([
             this.secret,
             notification.transactionId,
             notification.control,
