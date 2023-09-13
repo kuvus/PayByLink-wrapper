@@ -12,12 +12,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Client = void 0;
+exports.PblClient = void 0;
 const js_sha256_1 = require("js-sha256");
 const axios_1 = __importDefault(require("axios"));
 const transaction_error_1 = require("./transaction.error");
 const transaction_response_1 = require("./transaction.response");
-class Client {
+class PblClient {
     constructor(secret, shopId) {
         if (secret)
             this.secret = secret;
@@ -100,5 +100,5 @@ class Client {
         return notification.signature === localSignature;
     }
 }
-exports.Client = Client;
+exports.PblClient = PblClient;
 //# sourceMappingURL=index.js.map

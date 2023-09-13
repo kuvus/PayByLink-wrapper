@@ -10,7 +10,7 @@ declare type TransactionOptions = {
     hideReceiver?: boolean;
     customFinishNote?: string;
 };
-export declare class Client {
+export declare class PblClient {
     private readonly secret;
     private readonly shopId;
     constructor(secret: string, shopId: number);
