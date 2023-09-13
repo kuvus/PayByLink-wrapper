@@ -13,8 +13,8 @@ yarn add paybylink-wrapper
 
 ## Example Usage
 ```javascript
-const PayByLink = require('paybylink-wrapper').Client
-const pbl = new PayByLink(secret, shopId)
+const { PblClient } = require('paybylink-wrapper')
+const pbl = new PblClient(secret, shopId)
 
 pbl.generateTransaction({
     price,

@@ -15,7 +15,7 @@ type TransactionOptions = {
     customFinishNote?: string
 }
 
-export class Client {
+export class PblClient {
     private readonly secret!: string
     private readonly shopId!: number
 
