@@ -1,6 +1,8 @@
-# PAYBYLINK.PL-WRAPPER
+# PAYBYLINK.PL-Wrapper
 
-PAYBYLINK-WRAPPER is a simple, unofficial wrapper for PayByLink.pl API
+PAYBYLINK-Wrapper is a simple, unofficial wrapper for PayByLink.pl API
+
+This package is based on an official paybylink.pl API documentation available [here](https://paybylink.pl/dokumentacja-przelewy.pdf).
 
 ## Installation
 ```ssh
@@ -65,14 +67,38 @@ Example success result
 }
 ```
 
+### generateBlikWhiteLabelTransaction
+#### Asynchronous
+#### Parameters:
+
+options (Object):
+
+|       Key        |  Type  | Required |  
+|:----------------:|:------:|:--------:|
+|      price       | Number |   True   |
+|       code       | String |   True   |
+|    customerIP    | String |   True   |
+|     control      | String |  False   | 
+| notifyPaymentURL | String |  False   |
+| notifyStatusURL  | String |  False   |
+
+> API documentation doesn't specify if there could be any error response ¯\_(ツ)_/¯
+
+Example success result
+```javascript
+{
+    transactionId: "w3WUQXsMgSYc9gH3V8HcvHxazU5TvJLJ"
+}
+```
+
 ### cancelTransaction
 #### Asynchronous
 #### Parameters:
 
-| Parameter     | Type   | Required |  
-| :-----------: |:-----: | :------: |
-| transactionId | Number | True     |
-| customReason  | String | False    |
+|   Parameter   |  Type  | Required |  
+|:-------------:|:------:|:--------:|
+| transactionId | Number |   True   |
+| customReason  | String |  False   |
 
 Example result
 ```javascript
@@ -82,36 +108,42 @@ Example result
 }
 ```
 
-### validateTransaction
+### validateTransactionNotification
 #### Synchronous
 #### Parameters:
 
-transactionId: string
-control: string
-email: string
-amountPaid: number
-notificationAttempt: number
-paymentType: string
-apiVersion: number
-signature: string
+notification (object): - API notification response object
 
-| Parameter | Type   | Required | Description         |
-| :-------: |:-----: | :------: | :-----------------: |
-| response  | Object | True     | API response object |
-
-### Response object
-| Parameter           | Type   | Required |
-| :-----------------: |:-----: | :------: |
-| transactionId       | Number | True     |
-| control             | String | True     |
-| email               | String | True     |
-| amountPaid          | Number | True     | 
-| notificationAttempt | Number | True     | 
-| paymentType         | String | True     | 
-| apiVersion          | Number | True     |
-| signature           | String | True     |
+|      Parameter      |  Type  | Required |
+|:-------------------:|:------:|:--------:|
+|    transactionId    | Number |   True   |
+|       control       | String |   True   |
+|        email        | String |   True   |
+|     amountPaid      | Number |   True   | 
+| notificationAttempt | Number |   True   | 
+|     paymentType     | String |   True   | 
+|     apiVersion      | Number |   True   |
+|      signature      | String |   True   |
 
 Returns true or false depending on whether the API response was valid.
+
+### validateBlikNotification
+#### Synchronous
+#### Parameters:
+
+notification (object): - API notification response object
+
+
+|      Parameter      |  Type  | Required |
+|:-------------------:|:------:|:--------:|
+|    transactionId    | Number |   True   |
+|       control       | String |   True   |
+|        price        | String |   True   |
+|       status        | Number |   True   |
+|      signature      | String |   True   |
+
+Returns true or false depending on whether the API response was valid.
+
 
 ## Links
 [GitHub Repository](https://github.com/kuvus/PayByLink-wrapper)  
