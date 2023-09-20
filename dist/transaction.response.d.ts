@@ -1,5 +1,5 @@
 export declare class TransactionResponse {
-    transactionId: number;
+    transactionId: string;
     url?: string;
-    constructor(transactionId: number, url?: string);
+    constructor(transactionId: string, url?: string);
 }

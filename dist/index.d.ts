@@ -6,7 +6,7 @@ export declare class PblClient {
     constructor(secret: string, shopId: number);
     generateTransaction(options: TransactionOptions): Promise<TransactionResponse>;
     generateBlikWhiteLabelTransaction(options: BlikWhiteLabelTransactionOptions): Promise<TransactionResponse>;
-    cancelTransaction(transactionId: number, customReason: string): Promise<boolean>;
+    cancelTransaction(transactionId: string, customReason: string): Promise<boolean>;
     validateTransactionNotification(notification: TransactionNotificationResponse): boolean;
     validateBlikNotification(notification: BlikNotificationResponse): boolean;
 }

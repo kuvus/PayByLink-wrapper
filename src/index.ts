@@ -105,7 +105,7 @@ export class PblClient {
         return new TransactionResponse(response.data.transactionId)
     }
 
-    public async cancelTransaction(transactionId: number, customReason: string) {
+    public async cancelTransaction(transactionId: string, customReason: string) {
         if (!transactionId) throw new Error(`No transaction ID provided.`)
         if (!customReason) throw new Error(`No cancellation reason provided.`)
 
