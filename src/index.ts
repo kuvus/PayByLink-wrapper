@@ -2,37 +2,13 @@ import { sha256 } from 'js-sha256'
 import axios, { AxiosError } from 'axios'
 import { PayByLinkError } from './transaction.error'
 import { TransactionResponse } from './transaction.response'
-
-type TransactionOptions = {
-    price: number
-    control?: string
-    description?: string
-    email?: string
-    notifyURL?: string
-    returnUrlSuccess?: string
-    returnUrlSuccessTidPass?: boolean
-    hideReceiver?: boolean
-    customFinishNote?: string
-}
-
-type BlikWhiteLabelTransactionOptions = {
-    price: number
-    code: string
-    customerIP: string
-    control?: string
-    notifyPaymentURL?: string
-    notifyStatusURL?: string
-}
-
-type SuccessResponse = {
-    url: string
-    transactionId: string
-}
-
-type ErrorResponse = {
-    errorCode: number
-    error: string
-}
+import {
+    BlikNotificationResponse,
+    BlikWhiteLabelTransactionOptions,
+    ErrorResponse,
+    TransactionNotificationResponse,
+    TransactionOptions,
+} from './transaction.types'
 
 export class PblClient {
     private readonly secret!: string
@@ -162,16 +138,7 @@ export class PblClient {
         return true
     }
 
-    public validateTransactionNotification(notification: {
-        transactionId: string
-        control: string
-        email: string
-        amountPaid: number
-        notificationAttempt: number
-        paymentType: string
-        apiVersion: number
-        signature: string
-    }) {
+    public validateTransactionNotification(notification: TransactionNotificationResponse) {
         if (!notification) throw new Error(`No notification body provided.`)
 
         const localSignature = sha256(
@@ -192,13 +159,7 @@ export class PblClient {
         return notification.signature === localSignature
     }
 
-    public validateBlikNotification(notification: {
-        transactionId: string
-        control: string
-        price: number
-        status: string
-        signature: string
-    }) {
+    public validateBlikNotification(notification: BlikNotificationResponse) {
         if (!notification) throw new Error(`No notification body provided.`)
 
         const localSignature = sha256(
